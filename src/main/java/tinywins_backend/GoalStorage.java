@@ -252,11 +252,7 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse updatePartCompleted(
-            Long goalId,
-            int partIndex,
-            boolean completed) {
-
+    public GoalResponse updatePart(Long goalId, int partIndex, UpdateGoalPartRequest request) {
         GoalEntity goal = findEntityById(goalId);
 
         if (goal == null) {
@@ -268,7 +264,53 @@ public class GoalStorage {
         }
 
         GoalPartEntity part = goal.getParts().get(partIndex);
-        part.setCompleted(completed);
+
+        if (request.getType() != null) {
+            // EDIT MODE — type present means full field update
+            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+                throw new PartValidationException("title_required");
+            }
+
+            if (request.getDeadline() != null &&
+                    goal.getDeadline() != null &&
+                    request.getDeadline().isAfter(goal.getDeadline())) {
+                throw new PartValidationException("deadline_after_goal_deadline");
+            }
+
+            part.setTitle(request.getTitle().trim());
+            part.setDeadline(request.getDeadline());
+            part.setType(request.getType());
+
+            if (request.getType() == GoalPartType.MEASURABLE) {
+                if (request.getUnit() == null || request.getUnit().trim().isEmpty()) {
+                    throw new PartValidationException("unit_required");
+                }
+                if (request.getTargetAmount() == null || request.getTargetAmount() <= 0) {
+                    throw new PartValidationException("target_amount_invalid");
+                }
+
+                int currentAmount = request.getCurrentAmount() != null ? request.getCurrentAmount() : 0;
+
+                if (currentAmount < 0) {
+                    throw new PartValidationException("current_amount_invalid");
+                }
+
+                part.setUnit(request.getUnit().trim());
+                part.setCurrentAmount(currentAmount);
+                part.setTargetAmount(request.getTargetAmount());
+                // completed is auto-computed by the entity setters
+            } else {
+                // NORMAL — clear measurable fields; completed stays (checkbox controls it)
+                part.setUnit(null);
+                part.setCurrentAmount(0);
+                part.setTargetAmount(0);
+            }
+        } else {
+            // CHECKBOX MODE — only completed was sent
+            if (request.getCompleted() != null) {
+                part.setCompleted(request.getCompleted());
+            }
+        }
 
         GoalEntity savedGoal = goalRepository.save(goal);
 

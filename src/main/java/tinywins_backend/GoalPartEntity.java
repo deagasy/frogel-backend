@@ -109,6 +109,22 @@ public class GoalPartEntity {
         this.positionIndex = positionIndex;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+    public void setType(GoalPartType type) {
+        this.type = type;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }

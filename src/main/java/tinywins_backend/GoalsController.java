@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @RestController
 public class GoalsController {
@@ -123,21 +124,21 @@ public class GoalsController {
     }
 
     @PatchMapping("/goals/{goalId}/parts/{partIndex}")
-    public ResponseEntity<GoalResponse> updatePartCompleted(
+    public ResponseEntity<?> updatePart(
             @PathVariable Long goalId,
             @PathVariable int partIndex,
             @RequestBody UpdateGoalPartRequest request) {
-        GoalResponse goal = goalStorage.updatePartCompleted(
-                goalId,
-                partIndex,
-                request.isCompleted()
-        );
+        try {
+            GoalResponse goal = goalStorage.updatePart(goalId, partIndex, request);
 
-        if (goal == null) {
-            return ResponseEntity.notFound().build();
+            if (goal == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(goal);
+        } catch (PartValidationException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getErrorCode()));
         }
-
-        return ResponseEntity.ok(goal);
     }
 
     @PatchMapping("/goals/{goalId}/parts/{partIndex}/amount")
