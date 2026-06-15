@@ -25,6 +25,8 @@ public class GoalEntity {
 
     private LocalDate deadline;
 
+    private LocalDate lastUpdatedAt;
+
     @OneToMany(
             mappedBy = "goal",
             cascade = CascadeType.ALL,
@@ -63,6 +65,14 @@ public class GoalEntity {
 
     public void setDeadline(LocalDate deadline) {
         this.deadline = deadline;
+    }
+
+    public LocalDate getLastUpdatedAt() {
+        return lastUpdatedAt;
+    }
+
+    public void setLastUpdatedAt(LocalDate lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
     }
 
     public void addPart(GoalPartEntity part) {

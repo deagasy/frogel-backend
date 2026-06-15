@@ -58,17 +58,16 @@ public class GoalStorage {
                 0
         ));
 
+        diploma.setLastUpdatedAt(LocalDate.now());
         goalRepository.save(diploma);
 
-        goalRepository.save(new GoalEntity(
-                "Выучить немецкий",
-                LocalDate.of(2027, 5, 1)
-        ));
+        GoalEntity german = new GoalEntity("Выучить немецкий", LocalDate.of(2027, 5, 1));
+        german.setLastUpdatedAt(LocalDate.now());
+        goalRepository.save(german);
 
-        goalRepository.save(new GoalEntity(
-                "Подготовиться к интервью",
-                LocalDate.of(2026, 5, 15)
-        ));
+        GoalEntity interview = new GoalEntity("Подготовиться к интервью", LocalDate.of(2026, 5, 15));
+        interview.setLastUpdatedAt(LocalDate.now());
+        goalRepository.save(interview);
     }
 
     public ArrayList<GoalResponse> getGoals() {
@@ -86,6 +85,7 @@ public class GoalStorage {
                 request.getTitle(),
                 request.getDeadline()
         );
+        newGoal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(newGoal);
 
@@ -144,6 +144,7 @@ public class GoalStorage {
             goal.setDeadline(request.getDeadline());
         }
 
+        goal.setLastUpdatedAt(LocalDate.now());
         GoalEntity savedGoal = goalRepository.save(goal);
 
         return toResponse(savedGoal);
@@ -157,6 +158,7 @@ public class GoalStorage {
         }
 
         goal.setDeadline(deadline);
+        goal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -176,6 +178,7 @@ public class GoalStorage {
 
         GoalPartEntity part = goal.getParts().get(partIndex);
         part.setCompleted(true);
+        goal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -246,6 +249,7 @@ public class GoalStorage {
         }
 
         goal.addPart(newPart);
+        goal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -312,6 +316,7 @@ public class GoalStorage {
             }
         }
 
+        goal.setLastUpdatedAt(LocalDate.now());
         GoalEntity savedGoal = goalRepository.save(goal);
 
         return toResponse(savedGoal);
@@ -345,6 +350,7 @@ public class GoalStorage {
         int newCurrentAmount = part.getCurrentAmount() + amountToAdd;
 
         part.setCurrentAmount(newCurrentAmount);
+        goal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -366,6 +372,7 @@ public class GoalStorage {
         removedPart.setGoal(null);
 
         reindexParts(goal);
+        goal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -391,7 +398,8 @@ public class GoalStorage {
                 entity.getId(),
                 entity.getTitle(),
                 0,
-                entity.getDeadline()
+                entity.getDeadline(),
+                entity.getLastUpdatedAt()
         );
 
         for (GoalPartEntity partEntity : entity.getParts()) {

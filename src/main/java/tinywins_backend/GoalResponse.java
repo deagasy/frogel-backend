@@ -10,14 +10,16 @@ public class GoalResponse {
     private String title;
     private int progressPercent;
     private LocalDate deadline;
+    private LocalDate lastUpdatedAt;
 
     private List<GoalPart> parts = new ArrayList<>();
 
-    public GoalResponse(Long id, String title, int progressPercent, LocalDate deadline) {
+    public GoalResponse(Long id, String title, int progressPercent, LocalDate deadline, LocalDate lastUpdatedAt) {
         this.id = id;
         this.title = title;
         this.progressPercent = progressPercent;
         this.deadline = deadline;
+        this.lastUpdatedAt = lastUpdatedAt;
     }
 
     public Long getId() {
@@ -63,5 +65,9 @@ public class GoalResponse {
 
     public void setDeadline(LocalDate deadline) {
         this.deadline = deadline;
+    }
+
+    public LocalDate getLastUpdatedAt() {
+        return lastUpdatedAt;
     }
 }
