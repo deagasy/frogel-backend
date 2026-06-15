@@ -31,8 +31,14 @@ public class AuthController {
         if (isBlank(request.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("error", "email_required"));
         }
+        if (!isValidEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "email_invalid"));
+        }
         if (isBlank(request.getPassword())) {
             return ResponseEntity.badRequest().body(Map.of("error", "password_required"));
+        }
+        if (request.getPassword().length() < 8) {
+            return ResponseEntity.badRequest().body(Map.of("error", "password_too_short"));
         }
 
         try {
@@ -47,6 +53,9 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         if (isBlank(request.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("error", "email_required"));
+        }
+        if (!isValidEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "email_invalid"));
         }
         if (isBlank(request.getPassword())) {
             return ResponseEntity.badRequest().body(Map.of("error", "password_required"));
@@ -77,5 +86,14 @@ public class AuthController {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isValidEmail(String email) {
+        if (isBlank(email)) return false;
+        String t = email.trim();
+        int at = t.indexOf('@');
+        if (at <= 0) return false;
+        int dot = t.lastIndexOf('.');
+        return dot > at + 1 && dot < t.length() - 1;
     }
 }

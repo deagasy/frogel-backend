@@ -32,6 +32,7 @@ public class GoalStorage {
                 request.getDeadline()
         );
         newGoal.setOwner(owner);
+        newGoal.setDescription(request.getDescription());
         newGoal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(newGoal);
@@ -348,6 +349,7 @@ public class GoalStorage {
                 entity.getDeadline(),
                 entity.getLastUpdatedAt()
         );
+        response.setDescription(entity.getDescription());
 
         for (GoalPartEntity partEntity : entity.getParts()) {
             response.addPart(toGoalPart(partEntity));

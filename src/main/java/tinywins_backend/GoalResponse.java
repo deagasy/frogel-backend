@@ -8,6 +8,7 @@ public class GoalResponse {
 
     private Long id;
     private String title;
+    private String description;
     private int progressPercent;
     private LocalDate deadline;
     private LocalDate lastUpdatedAt;
@@ -28,6 +29,14 @@ public class GoalResponse {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getProgressPercent() {

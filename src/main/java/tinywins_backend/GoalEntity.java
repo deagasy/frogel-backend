@@ -26,6 +26,8 @@ public class GoalEntity {
 
     private String title;
 
+    private String description;
+
     private LocalDate deadline;
 
     private LocalDate lastUpdatedAt;
@@ -64,6 +66,14 @@ public class GoalEntity {
 
     public List<GoalPartEntity> getParts() {
         return parts;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setTitle(String title) {
