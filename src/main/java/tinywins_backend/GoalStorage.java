@@ -1,6 +1,5 @@
 package tinywins_backend;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,74 +16,22 @@ public class GoalStorage {
         this.goalRepository = goalRepository;
     }
 
-    @PostConstruct
-    public void seedDemoGoalsIfDatabaseIsEmpty() {
-        if (goalRepository.count() > 0) {
-            return;
-        }
-
-        GoalEntity diploma = new GoalEntity(
-                "Написать диплом",
-                LocalDate.of(2027, 4, 1)
-        );
-
-        GoalPartEntity diplomaPlan = new GoalPartEntity(
-                "Сделать план диплома",
-                null,
-                GoalPartType.NORMAL,
-                null,
-                0,
-                0
-        );
-        diplomaPlan.setCompleted(true);
-
-        diploma.addPart(diplomaPlan);
-
-        diploma.addPart(new GoalPartEntity(
-                "Написать актуальность",
-                null,
-                GoalPartType.NORMAL,
-                null,
-                0,
-                0
-        ));
-
-        diploma.addPart(new GoalPartEntity(
-                "Собрать источники",
-                null,
-                GoalPartType.NORMAL,
-                null,
-                0,
-                0
-        ));
-
-        diploma.setLastUpdatedAt(LocalDate.now());
-        goalRepository.save(diploma);
-
-        GoalEntity german = new GoalEntity("Выучить немецкий", LocalDate.of(2027, 5, 1));
-        german.setLastUpdatedAt(LocalDate.now());
-        goalRepository.save(german);
-
-        GoalEntity interview = new GoalEntity("Подготовиться к интервью", LocalDate.of(2026, 5, 15));
-        interview.setLastUpdatedAt(LocalDate.now());
-        goalRepository.save(interview);
-    }
-
-    public ArrayList<GoalResponse> getGoals() {
+    public ArrayList<GoalResponse> getGoals(UserEntity owner) {
         ArrayList<GoalResponse> responses = new ArrayList<>();
 
-        for (GoalEntity goal : goalRepository.findAllByOrderByIdAsc()) {
+        for (GoalEntity goal : goalRepository.findAllByOwnerOrderByIdAsc(owner)) {
             responses.add(toResponse(goal));
         }
 
         return responses;
     }
 
-    public GoalResponse addGoal(CreateGoalRequest request) {
+    public GoalResponse addGoal(CreateGoalRequest request, UserEntity owner) {
         GoalEntity newGoal = new GoalEntity(
                 request.getTitle(),
                 request.getDeadline()
         );
+        newGoal.setOwner(owner);
         newGoal.setLastUpdatedAt(LocalDate.now());
 
         GoalEntity savedGoal = goalRepository.save(newGoal);
@@ -92,8 +39,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse findGoalById(Long id) {
-        GoalEntity goal = findEntityById(id);
+    public GoalResponse findGoalById(Long id, UserEntity owner) {
+        GoalEntity goal = findEntityById(id, owner);
 
         if (goal == null) {
             return null;
@@ -102,8 +49,8 @@ public class GoalStorage {
         return toResponse(goal);
     }
 
-    public boolean deleteById(Long id) {
-        GoalEntity goal = findEntityById(id);
+    public boolean deleteById(Long id, UserEntity owner) {
+        GoalEntity goal = findEntityById(id, owner);
 
         if (goal == null) {
             return false;
@@ -113,12 +60,12 @@ public class GoalStorage {
         return true;
     }
 
-    public GoalResponse updateProgress(Long id, int progressPercent) {
+    public GoalResponse updateProgress(Long id, int progressPercent, UserEntity owner) {
         if (progressPercent < 0 || progressPercent > 100) {
             return null;
         }
 
-        GoalEntity goal = findEntityById(id);
+        GoalEntity goal = findEntityById(id, owner);
 
         if (goal == null) {
             return null;
@@ -127,8 +74,8 @@ public class GoalStorage {
         return toResponse(goal);
     }
 
-    public GoalResponse updateGoal(Long id, UpdateGoalRequest request) {
-        GoalEntity goal = findEntityById(id);
+    public GoalResponse updateGoal(Long id, UpdateGoalRequest request, UserEntity owner) {
+        GoalEntity goal = findEntityById(id, owner);
 
         if (goal == null) {
             return null;
@@ -150,8 +97,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse updateDeadline(Long id, LocalDate deadline) {
-        GoalEntity goal = findEntityById(id);
+    public GoalResponse updateDeadline(Long id, LocalDate deadline, UserEntity owner) {
+        GoalEntity goal = findEntityById(id, owner);
 
         if (goal == null) {
             return null;
@@ -165,8 +112,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse completePart(Long goalId, int partIndex) {
-        GoalEntity goal = findEntityById(goalId);
+    public GoalResponse completePart(Long goalId, int partIndex, UserEntity owner) {
+        GoalEntity goal = findEntityById(goalId, owner);
 
         if (goal == null) {
             return null;
@@ -185,8 +132,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse addPart(Long goalId, CreateGoalPartRequest request) {
-        GoalEntity goal = findEntityById(goalId);
+    public GoalResponse addPart(Long goalId, CreateGoalPartRequest request, UserEntity owner) {
+        GoalEntity goal = findEntityById(goalId, owner);
 
         if (goal == null) {
             return null;
@@ -256,8 +203,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse updatePart(Long goalId, int partIndex, UpdateGoalPartRequest request) {
-        GoalEntity goal = findEntityById(goalId);
+    public GoalResponse updatePart(Long goalId, int partIndex, UpdateGoalPartRequest request, UserEntity owner) {
+        GoalEntity goal = findEntityById(goalId, owner);
 
         if (goal == null) {
             return null;
@@ -302,7 +249,6 @@ public class GoalStorage {
                 part.setUnit(request.getUnit().trim());
                 part.setCurrentAmount(currentAmount);
                 part.setTargetAmount(request.getTargetAmount());
-                // completed is auto-computed by the entity setters
             } else {
                 // NORMAL — clear measurable fields; completed stays (checkbox controls it)
                 part.setUnit(null);
@@ -325,9 +271,10 @@ public class GoalStorage {
     public GoalResponse updatePartAmount(
             Long goalId,
             int partIndex,
-            int amountToAdd) {
+            int amountToAdd,
+            UserEntity owner) {
 
-        GoalEntity goal = findEntityById(goalId);
+        GoalEntity goal = findEntityById(goalId, owner);
 
         if (goal == null) {
             return null;
@@ -357,8 +304,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    public GoalResponse deletePart(Long goalId, int partIndex) {
-        GoalEntity goal = findEntityById(goalId);
+    public GoalResponse deletePart(Long goalId, int partIndex, UserEntity owner) {
+        GoalEntity goal = findEntityById(goalId, owner);
 
         if (goal == null) {
             return null;
@@ -379,8 +326,8 @@ public class GoalStorage {
         return toResponse(savedGoal);
     }
 
-    private GoalEntity findEntityById(Long id) {
-        return goalRepository.findById(id).orElse(null);
+    private GoalEntity findEntityById(Long id, UserEntity owner) {
+        return goalRepository.findByIdAndOwner(id, owner).orElse(null);
     }
 
     private boolean isValidPartIndex(GoalEntity goal, int partIndex) {

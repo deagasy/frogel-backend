@@ -57,6 +57,18 @@ public class AuthService {
                 .orElseThrow(InvalidCredentialsException::new);
     }
 
+    public UserEntity resolveUser(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        try {
+            Long userId = jwtService.extractUserId(authHeader.substring(7));
+            return userRepository.findById(userId).orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private AuthUserResponse toResponse(UserEntity user) {
         return new AuthUserResponse(user.getId(), user.getEmail(), user.getDisplayName(), user.getCreatedAt());
     }
