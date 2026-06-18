@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Component
@@ -33,7 +34,7 @@ public class GoalStorage {
         );
         newGoal.setOwner(owner);
         newGoal.setDescription(request.getDescription());
-        newGoal.setLastUpdatedAt(LocalDate.now());
+        newGoal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(newGoal);
 
@@ -92,7 +93,7 @@ public class GoalStorage {
             goal.setDeadline(request.getDeadline());
         }
 
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
         GoalEntity savedGoal = goalRepository.save(goal);
 
         return toResponse(savedGoal);
@@ -106,7 +107,7 @@ public class GoalStorage {
         }
 
         goal.setDeadline(deadline);
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -126,7 +127,7 @@ public class GoalStorage {
 
         GoalPartEntity part = goal.getParts().get(partIndex);
         part.setCompleted(true);
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -197,7 +198,7 @@ public class GoalStorage {
         }
 
         goal.addPart(newPart);
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -263,7 +264,7 @@ public class GoalStorage {
             }
         }
 
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
         GoalEntity savedGoal = goalRepository.save(goal);
 
         return toResponse(savedGoal);
@@ -298,7 +299,7 @@ public class GoalStorage {
         int newCurrentAmount = part.getCurrentAmount() + amountToAdd;
 
         part.setCurrentAmount(newCurrentAmount);
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 
@@ -320,7 +321,7 @@ public class GoalStorage {
         removedPart.setGoal(null);
 
         reindexParts(goal);
-        goal.setLastUpdatedAt(LocalDate.now());
+        goal.setLastUpdatedAt(LocalDateTime.now());
 
         GoalEntity savedGoal = goalRepository.save(goal);
 

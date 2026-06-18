@@ -1,6 +1,7 @@
 package tinywins_backend;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +12,11 @@ public class GoalResponse {
     private String description;
     private int progressPercent;
     private LocalDate deadline;
-    private LocalDate lastUpdatedAt;
+    private LocalDateTime lastUpdatedAt;
 
     private List<GoalPart> parts = new ArrayList<>();
 
-    public GoalResponse(Long id, String title, int progressPercent, LocalDate deadline, LocalDate lastUpdatedAt) {
+    public GoalResponse(Long id, String title, int progressPercent, LocalDate deadline, LocalDateTime lastUpdatedAt) {
         this.id = id;
         this.title = title;
         this.progressPercent = progressPercent;
@@ -76,7 +77,7 @@ public class GoalResponse {
         this.deadline = deadline;
     }
 
-    public LocalDate getLastUpdatedAt() {
+    public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }
 }
